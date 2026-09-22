@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FinFlow — organize suas finanças</title>
+<meta name="theme-color" content="#10312B">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- TELA DE LOGIN -->
+<div id="auth-screen" class="screen">
+  <div class="auth-card">
+    <h1 class="brand">FinFlow</h1>
+    <p class="brand-sub">Sua rotina financeira, sob controle.</p>
+
+    <form id="login-form">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" required autocomplete="email">
+      <label for="password">Senha</label>
+      <input type="password" id="password" required autocomplete="current-password">
+      <button type="submit" class="btn-primary">Entrar</button>
+    </form>
+    <button id="signup-btn" class="btn-ghost">Criar conta</button>
+    <p id="auth-error" class="auth-error"></p>
+  </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="app-screen" class="screen hidden">
+
+  <header class="topbar">
+    <span class="brand-small">FinFlow</span>
+    <button id="logout-btn" class="icon-btn" aria-label="Sair">⏻</button>
+  </header>
+
+  <!-- INÍCIO -->
+  <section id="view-inicio" class="view">
+    <div class="hero">
+      <span class="hero-label">Saldo do mês</span>
+      <span id="hero-balance" class="hero-number">R$ 0,00</span>
+      <div class="hero-row">
+        <div class="hero-stat">
+          <span class="hero-stat-label">Entradas</span>
+          <span id="hero-in" class="hero-stat-value hero-in">R$ 0,00</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-label">Gastos</span>
+          <span id="hero-out" class="hero-stat-value hero-out">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ledger-header">
+      <h2>Lançamentos recentes</h2>
+    </div>
+    <ul id="ledger-list" class="ledger-list"></ul>
+    <p id="ledger-empty" class="empty-state hidden">Nada por aqui ainda. Toque no microfone abaixo e conte o que você gastou.</p>
+  </section>
+
+  <!-- LANÇAR (voz / câmera / manual) -->
+  <section id="view-lancar" class="view hidden">
+    <h2 class="view-title">Lançar um gasto</h2>
+
+    <button id="voice-btn" class="voice-button" aria-label="Falar um gasto">
+      <span id="voice-icon">🎙</span>
+    </button>
+    <p id="voice-status" class="voice-status">Toque e fale, por exemplo:<br><em>"Gastei 50 reais na farmácia"</em></p>
+    <p id="voice-transcript" class="voice-transcript"></p>
+
+    <div class="divider"><span>ou</span></div>
+
+    <button id="camera-btn" class="btn-secondary">📷 Fotografar nota fiscal</button>
+    <video id="camera-preview" class="camera-preview hidden" autoplay playsinline></video>
+    <canvas id="camera-canvas" class="hidden"></canvas>
+    <button id="camera-capture-btn" class="btn-primary hidden">Capturar</button>
+    <p id="ocr-status" class="voice-status hidden"></p>
+
+    <div class="divider"><span>ou lance à mão</span></div>
+
+    <form id="manual-form" class="manual-form">
+      <input type="text" id="manual-desc" placeholder="Descrição (ex: mercado)" required>
+      <input type="number" id="manual-value" placeholder="Valor em R$" step="0.01" required>
+      <select id="manual-type">
+        <option value="saida">Gasto</option>
+        <option value="entrada">Entrada</option>
+      </select>
+      <button type="submit" class="btn-primary">Adicionar</button>
+    </form>
+
+    <!-- confirmação de lançamento detectado por voz/OCR -->
+    <div id="confirm-box" class="confirm-box hidden">
+      <p id="confirm-text"></p>
+      <div class="confirm-actions">
+        <button id="confirm-save" class="btn-primary">Salvar</button>
+        <button id="confirm-cancel" class="btn-ghost">Cancelar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANEJAR -->
+  <section id="view-planejar" class="view hidden">
+    <h2 class="view-title">Planejar um gasto futuro</h2>
+    <p class="view-sub">Diga o quanto vai gastar e quando — o FinFlow calcula quanto guardar por dia.</p>
+
+    <form id="plan-form" class="manual-form">
+      <input type="text" id="plan-desc" placeholder="Descrição (ex: conserto do carro)" required>
+      <input type="number" id="plan-value" placeholder="Valor em R$" step="0.01" required>
+      <label for="plan-date" class="field-label">Data</label>
+      <input type="date" id="plan-date" required>
+      <button type="submit" class="btn-primary">Programar</button>
+    </form>
+
+    <h3 class="view-subtitle">Seus planos</h3>
+    <ul id="plan-list" class="plan-list"></ul>
+    <p id="plan-empty" class="empty-state hidden">Nenhum gasto programado ainda.</p>
+  </section>
+
+  <!-- DICAS -->
+  <section id="view-dicas" class="view hidden">
+    <h2 class="view-title">Dicas para você</h2>
+    <ul id="tips-list" class="tips-list"></ul>
+  </section>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="inicio">
+      <span class="nav-icon">◉</span><span>Início</span>
+    </button>
+    <button class="nav-btn" data-view="lancar">
+      <span class="nav-icon">＋</span><span>Lançar</span>
+    </button>
+    <button class="nav-btn" data-view="planejar">
+      <span class="nav-icon">▤</span><span>Planejar</span>
+    </button>
+    <button class="nav-btn" data-view="dicas">
+      <span class="nav-icon">✺</span><span>Dicas</span>
+    </button>
+  </nav>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
